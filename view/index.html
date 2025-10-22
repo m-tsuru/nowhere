@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signage</title>
+    <link rel="stylesheet" href="main.css">
+    <script src="./main.js" defer></script>
+</head>
+
+<body>
+    <main>
+        <div class="timetable">
+            <table>
+                <thead>
+                    <tr>
+                        <th class="clock-fixed">沼田料金所前</th>
+                        <th class="clock-fixed">市立大学前</th>
+                        <th class="line-fixed">号線</th>
+                        <th>行先 / 現在地</th>
+                        <th class="clock-fixed">到着遅延</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>12:34</td>
+                        <td>12:34</td>
+                        <td>63</td>
+                        <td class="content">
+                            <span>広島バスセンター</span>
+                            <span>沼田料金所前 を通過</span>
+                        </td>
+                        <td><span class="red">まもなく</span></td>
+                    </tr>
+                    <tr>
+                        <td>12:34</td>
+                        <td>&dash;</td>
+                        <td>63</td>
+                        <td class="content">
+                            <span>広島バスセンター</span>
+                            <span>沼田料金所前 を通過</span>
+                        </td>
+                        <td>5分</td>
+                    </tr>
+                    <tr>
+                        <td>12:34</td>
+                        <td>12:34</td>
+                        <td>63-2</td>
+                        <td class="content">
+                            <span>広島バスセンター</span>
+                            <span>情報なし</span>
+                        </td>
+                        <td>5分遅れ</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="info">
+            <div id="ww_8dc78bd907d79" v='1.3' loc='id'
+                a='{"t":"horizontal","lang":"ja","sl_lpl":1,"ids":["wl2949"],"font":"Arial","sl_ics":"one","sl_sot":"celsius","cl_bkg":"image","cl_font":"#FFFFFF","cl_cloud":"#FFFFFF","cl_persp":"#81D4FA","cl_sun":"#FFC107","cl_moon":"#FFC107","cl_thund":"#FF5722"}'>
+                More forecasts: <a href="https://oneweather.org/ja/tokyo/10_days/" id="ww_8dc78bd907d79_u"
+                    target="_blank">oneweather.org/ja/tokyo/10_days</a></div>
+            <script async src="https://app3.weatherwidget.org/js/?id=ww_8dc78bd907d79"></script>
+        </div>
+        <div class="ad">
+            <img src="ad.png" alt="" height="100%">
+        </div>
+        <div class="status-clock">
+            <span>12:34</span>
+        </div>
+        <div class="status-text">
+            <p>新入生のみなさん、ご入学おめでとうございます。</p>
+        </div>
+    </main>
+</body>
+
+</html>

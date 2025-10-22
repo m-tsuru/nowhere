@@ -1,0 +1,195 @@
+* {
+    margin: 0;
+    padding: 0;
+
+    color: white;
+    font-family: 'BIZ UDPGothic';
+
+    scrollbar-width: none;
+
+    overflow: hidden;
+}
+
+html::-webkit-scrollbar{
+    display: none;
+}
+
+main {
+    display: grid;
+
+    background-color: black;
+
+    width: calc(100vw - 8px);
+    height: calc(100vh - 8px);
+
+    overflow: hidden;
+
+    gap: 8px 8px;
+    grid-gap: 8px 8px;
+    grid-auto-flow: row;
+    grid-template-rows: repeat(12, 1fr);
+    grid-template-columns: repeat(12, 1fr);
+}
+
+.timetable {
+    grid-row: 1 / span 5;
+    grid-column: 1 / span 12;
+}
+
+.timetable > table {
+    width: 100%;
+    height: 100%;
+}
+
+.timetable > table > thead > tr {
+    height: 1.5em;
+}
+
+.timetable > table > thead > tr > th {
+    color: white;
+    background-color: #333333;
+}
+
+.timetable > table > thead > tr > .clock-fixed {
+    width: 15%;
+}
+
+.timetable > table > thead > tr > .line-fixed {
+    width: 10%;
+    padding: 8px;
+}
+
+.timetable > table {
+    table-layout: fixed;
+}
+
+
+.timetable > table > tbody > tr {
+    font-size: xx-large;
+    height: 25%;
+}
+
+.timetable > table > tbody > tr > td {
+    text-align: center;
+
+    border: #888 solid 0.5px;
+    margin: 2px;
+
+    font-size: xx-large;
+}
+
+.timetable > table > tbody > tr > .content {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+
+    margin: 0;
+    padding: 0;
+}
+
+.timetable > table > tbody > tr > .content span:first-child {
+    flex: 7;  /* 上部のテキスト 70% */
+    font-size: xx-large;
+    display: flex;
+    align-items: center; /* 縦中央揃え */
+
+    margin: 0;
+    padding-left: 8px;
+}
+
+.timetable > table > tbody > tr > .content span:last-child {
+    flex: 3;  /* 下部のテキスト 30% */
+    font-size: medium;
+    display: flex;
+    align-items: center; /* 縦中央揃え */
+
+    background-color: #444;
+
+    margin: 0;
+    padding-left: 8px;
+}
+
+.timetable > table > tbody > tr > .content:first-child {
+    font-size: large;
+}
+
+
+.info {
+    grid-row: 6 / span 6;
+    grid-column: 1 / span 6;
+
+    border: #888 0.5px solid;
+    margin-left: 2px;
+
+    display: flex; /* 子要素を中央揃え */
+    justify-content: center;
+    align-items: center;
+
+    width: 100%; /* 必要に応じて調整 */
+}
+
+.info > div {
+    display: block;
+    width: 100% !important; /* 必要に応じて調整 */
+    font-size: 2em; /* テキストサイズを大きくする */
+}
+
+.ad {
+    grid-row: 6 / span 6;
+    grid-column: 7 / span 6;
+
+    border: #888 0.5px solid;
+    margin-right: 2px;
+
+    text-align: center;
+}
+
+.ad > img {
+    text-align: center;
+}
+
+.red {
+    padding: 8px;
+    color: white;
+    background-color: red;
+}
+
+.status-clock {
+    font-size: xx-large;
+
+    grid-row: 12 / span 1;
+    grid-column: 1 / span 2;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.status-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    grid-row: 12 / span 1;
+    grid-column: 3 / span 10;
+
+    width: 100%;
+    white-space: nowrap;
+    position: relative;
+}
+
+.status-text > p {
+    display: inline-block;
+    font-size: xx-large;
+    animation: marquee 5s linear infinite;
+}
+
+@keyframes marquee {
+    0% {
+        transform: translateX(100%);
+    }
+    100% {
+        transform: translateX(-100%);
+    }
+}
