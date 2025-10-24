@@ -5,7 +5,7 @@ from collections import defaultdict
 from sqlalchemy import and_, or_
 from sqlalchemy.orm import Session
 
-from static_models import (
+from .static_models import (
     Calendar,
     CalendarDates,
     Routes,

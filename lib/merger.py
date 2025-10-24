@@ -4,11 +4,11 @@ import os
 from copy import deepcopy
 
 from dotenv import load_dotenv
-from dynamic import download_dynamic_files, parse_gtfs_realtime
+from .dynamic import download_dynamic_files, parse_gtfs_realtime
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from static import get_bus_schedule_flexible
+from .static import get_bus_schedule_flexible
 
 eng = create_engine("sqlite:///nowhere.db")
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=eng)
@@ -68,9 +68,9 @@ def merge_gtfs_realtime(static_data: dict, dynamic_data: dict) -> dict:
 
                     # departure 情報を追加
                     if "departure" in realtime_info:
-                        stop["realtime_departure"] = realtime_info["departure"]
+                        stop["actual_departure"] = realtime_info["departure"]
                         if "time" in realtime_info["departure"]:
-                            stop["realtime_departure"]["time"] = (
+                            stop["actual_departure"]["time"] = (
                                 datetime.datetime.strftime(
                                     datetime.datetime.fromtimestamp(
                                         int(realtime_info["departure"]["time"]),
@@ -82,6 +82,15 @@ def merge_gtfs_realtime(static_data: dict, dynamic_data: dict) -> dict:
                     # arrival 情報を追加
                     if "arrival" in realtime_info:
                         stop["realtime_arrival"] = realtime_info["arrival"]
+                        if "time" in realtime_info["arrival"]:
+                            stop["realtime_arrival"]["time"] = (
+                                datetime.datetime.strftime(
+                                    datetime.datetime.fromtimestamp(
+                                        int(realtime_info["arrival"]["time"]),
+                                    ),
+                                    "%H:%M:%S",
+                                )
+                            )
 
                     # stop_sequence と schedule_relationship を追加
                     if "stop_sequence" in realtime_info:
@@ -105,9 +114,9 @@ if __name__ == "__main__":
         st = get_bus_schedule_flexible(
             session,
             stop_ids=stops_ids,
-            target_date=datetime.datetime(2025, 10, 22),
-            start_time="13:00:00",
-            stop_time="14:00:00",
+            target_date=datetime.datetime(2025, 10, 24),
+            start_time="22:00:00",
+            stop_time="23:00:00",
         )
         re = parse_gtfs_realtime("trip_updates.bin")
         merged = merge_gtfs_realtime(st, re)
