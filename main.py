@@ -41,9 +41,13 @@ async def api():
                     "24140 1",
                     "24140 2",
                 ],
-                target_date=datetime.datetime(2025, 10, 22),  # noqa: DTZ001
-                start_time="21:15:00",
-                stop_time="22:00:00",
+                target_date=datetime.datetime.today(),  # noqa: DTZ001
+                start_time=datetime.datetime.strftime(
+                    datetime.datetime.now(), "%H:%M:%S"
+                ),
+                stop_time=datetime.datetime.strftime(
+                    datetime.datetime.now() + datetime.timedelta(minutes=60), "%H:%M:%S"
+                ),
                 limit=50,
             )
             merged_result = merge_gtfs_realtime(
