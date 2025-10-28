@@ -36,13 +36,14 @@ function displayBusSchedule(scheduleData) {
         let numataTime = '—';
         let numataTimeRaw = null;
         let numataActualTime = null;
+        let numataActualTimeRaw = null;
         let numataDelay = 0;
         let shidaiTime = '—';
         let shidaiActualTime = null;
+        let shidaiActualTimeRaw = null;
         let shidaiDelay = 0;
         let destination = '';
         let currentLocation = tripInfo.route_long_name || '情報なし';
-        let delayInfo = '';
 
         for (const stop of stops) {
             // 沼田料金所前 (24140 1 または 24140 2)
@@ -53,8 +54,8 @@ function displayBusSchedule(scheduleData) {
                     numataDelay = calculateDelay(stop);
                     if (stop.actual_departure.time) {
                         numataActualTime = formatTime(stop.actual_departure.time);
+                        numataActualTimeRaw = stop.actual_departure.time;
                     }
-                    delayInfo = formatDelay(numataDelay);
                 }
             }
             // 市立大学前 (22030 1 または 22030 2)
@@ -64,9 +65,7 @@ function displayBusSchedule(scheduleData) {
                     shidaiDelay = calculateDelay(stop);
                     if (stop.actual_departure.time) {
                         shidaiActualTime = formatTime(stop.actual_departure.time);
-                    }
-                    if (!delayInfo) {
-                        delayInfo = formatDelay(shidaiDelay);
+                        shidaiActualTimeRaw = stop.actual_departure.time;
                     }
                 }
             }
@@ -82,14 +81,15 @@ function displayBusSchedule(scheduleData) {
             numataTime,
             numataTimeRaw,
             numataActualTime,
+            numataActualTimeRaw,
             numataDelay,
             shidaiTime,
             shidaiActualTime,
+            shidaiActualTimeRaw,
             shidaiDelay,
             routeNumber: tripInfo.route_short_name,
             destination,
-            currentLocation,
-            delayInfo
+            currentLocation
         });
     }
 
@@ -107,14 +107,15 @@ function displayBusSchedule(scheduleData) {
         const row = createTableRow(
             rowData.numataTime,
             rowData.numataActualTime,
+            rowData.numataActualTimeRaw,
             rowData.numataDelay,
             rowData.shidaiTime,
             rowData.shidaiActualTime,
+            rowData.shidaiActualTimeRaw,
             rowData.shidaiDelay,
             rowData.routeNumber,
             rowData.destination,
-            rowData.currentLocation,
-            rowData.delayInfo
+            rowData.currentLocation
         );
         tbody.appendChild(row);
     }
@@ -138,25 +139,45 @@ function calculateDelay(stop) {
     return stop.actual_departure.delay;
 }
 
-// 遅延情報をフォーマット
-function formatDelay(delaySeconds) {
-    if (delaySeconds === 0) {
+// 到着予定時間までの残り時間を計算
+function calculateTimeUntilArrival(actualTimeString) {
+    if (!actualTimeString) return null;
+
+    const now = new Date();
+    const [hours, minutes, seconds] = actualTimeString.split(':').map(Number);
+
+    const arrivalTime = new Date();
+    arrivalTime.setHours(hours);
+    arrivalTime.setMinutes(minutes);
+    arrivalTime.setSeconds(seconds || 0);
+
+    // 翌日の時刻の場合（24時を超える場合）
+    if (hours >= 24) {
+        arrivalTime.setDate(arrivalTime.getDate() + 1);
+        arrivalTime.setHours(hours - 24);
+    }
+
+    const diffMs = arrivalTime - now;
+    const diffMinutes = Math.floor(diffMs / 1000 / 60);
+
+    return diffMinutes;
+}
+
+// 残り時間をフォーマット
+function formatTimeUntilArrival(minutesUntil) {
+    if (minutesUntil === null || minutesUntil < 0) {
         return '';
     }
 
-    const delayMinutes = Math.floor(delaySeconds / 60);
-
-    if (delayMinutes < 1) {
+    if (minutesUntil <= 1) {
         return '<span class="red">まもなく</span>';
-    } else if (delayMinutes < 3) {
-        return `${delayMinutes}分`;
     } else {
-        return `${delayMinutes}分遅れ`;
+        return `<span>あと${minutesUntil}分</span>`;
     }
 }
 
 // テーブル行を作成
-function createTableRow(numataTime, numataActualTime, numataDelay, shidaiTime, shidaiActualTime, shidaiDelay, routeNumber, destination, currentLocation, delayInfo) {
+function createTableRow(numataTime, numataActualTime, numataActualTimeRaw, numataDelay, shidaiTime, shidaiActualTime, shidaiActualTimeRaw, shidaiDelay, routeNumber, destination, currentLocation) {
     const row = document.createElement('tr');
 
     // 沼田料金所前の時刻表示（遅延がある場合は予想時刻も表示）
@@ -171,6 +192,16 @@ function createTableRow(numataTime, numataActualTime, numataDelay, shidaiTime, s
         shidaiDisplay = `<span style="text-decoration: line-through; color: #999;">${shidaiTime}</span> <span style="color: #e74c3c; font-weight: bold;">${shidaiActualTime}</span>`;
     }
 
+    // 到着予定時間までの残り時間を計算（沼田料金所前を優先、なければ市立大学前）
+    let timeUntilArrival = '';
+    if (numataActualTimeRaw) {
+        const minutes = calculateTimeUntilArrival(numataActualTimeRaw);
+        timeUntilArrival = formatTimeUntilArrival(minutes);
+    } else if (shidaiActualTimeRaw) {
+        const minutes = calculateTimeUntilArrival(shidaiActualTimeRaw);
+        timeUntilArrival = formatTimeUntilArrival(minutes);
+    }
+
     row.innerHTML = `
         <td>${numataDisplay}</td>
         <td>${shidaiDisplay}</td>
@@ -179,7 +210,7 @@ function createTableRow(numataTime, numataActualTime, numataDelay, shidaiTime, s
             <span>${destination}</span>
             <span>${currentLocation}</span>
         </td>
-        <td>${delayInfo}</td>
+        <td>${timeUntilArrival}</td>
     `;
 
     return row;
