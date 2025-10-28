@@ -35,7 +35,11 @@ function displayBusSchedule(scheduleData) {
         // 沼田料金所前と市立大学前の時刻を取得
         let numataTime = '—';
         let numataTimeRaw = null;
+        let numataActualTime = null;
+        let numataDelay = 0;
         let shidaiTime = '—';
+        let shidaiActualTime = null;
+        let shidaiDelay = 0;
         let destination = '';
         let currentLocation = '情報なし';
         let delayInfo = '';
@@ -46,8 +50,11 @@ function displayBusSchedule(scheduleData) {
                 numataTime = formatTime(stop.departure_scheduled_time);
                 numataTimeRaw = stop.departure_scheduled_time;
                 if (stop.actual_departure) {
-                    const delay = calculateDelay(stop);
-                    delayInfo = formatDelay(delay);
+                    numataDelay = calculateDelay(stop);
+                    if (stop.actual_departure.time) {
+                        numataActualTime = formatTime(stop.actual_departure.time);
+                    }
+                    delayInfo = formatDelay(numataDelay);
                     currentLocation = `${stop.stop_name} を通過`;
                 }
             }
@@ -55,9 +62,12 @@ function displayBusSchedule(scheduleData) {
             else if (stop.stop_id.startsWith('22030')) {
                 shidaiTime = formatTime(stop.departure_scheduled_time);
                 if (stop.actual_departure) {
-                    const delay = calculateDelay(stop);
+                    shidaiDelay = calculateDelay(stop);
+                    if (stop.actual_departure.time) {
+                        shidaiActualTime = formatTime(stop.actual_departure.time);
+                    }
                     if (!delayInfo) {
-                        delayInfo = formatDelay(delay);
+                        delayInfo = formatDelay(shidaiDelay);
                     }
                     currentLocation = `${stop.stop_name} を通過`;
                 }
@@ -73,7 +83,11 @@ function displayBusSchedule(scheduleData) {
         tripRows.push({
             numataTime,
             numataTimeRaw,
+            numataActualTime,
+            numataDelay,
             shidaiTime,
+            shidaiActualTime,
+            shidaiDelay,
             routeNumber: tripInfo.route_short_name,
             destination,
             currentLocation,
@@ -94,7 +108,11 @@ function displayBusSchedule(scheduleData) {
     for (const rowData of topThree) {
         const row = createTableRow(
             rowData.numataTime,
+            rowData.numataActualTime,
+            rowData.numataDelay,
             rowData.shidaiTime,
+            rowData.shidaiActualTime,
+            rowData.shidaiDelay,
             rowData.routeNumber,
             rowData.destination,
             rowData.currentLocation,
@@ -140,12 +158,24 @@ function formatDelay(delaySeconds) {
 }
 
 // テーブル行を作成
-function createTableRow(numataTime, shidaiTime, routeNumber, destination, currentLocation, delayInfo) {
+function createTableRow(numataTime, numataActualTime, numataDelay, shidaiTime, shidaiActualTime, shidaiDelay, routeNumber, destination, currentLocation, delayInfo) {
     const row = document.createElement('tr');
 
+    // 沼田料金所前の時刻表示（遅延がある場合は予想時刻も表示）
+    let numataDisplay = numataTime;
+    if (numataActualTime && numataDelay !== 0) {
+        numataDisplay = `<span style="text-decoration: line-through; color: #999;">${numataTime}</span> <span style="color: #e74c3c; font-weight: bold;">${numataActualTime}</span>`;
+    }
+
+    // 市立大学前の時刻表示（遅延がある場合は予想時刻も表示）
+    let shidaiDisplay = shidaiTime;
+    if (shidaiActualTime && shidaiDelay !== 0) {
+        shidaiDisplay = `<span style="text-decoration: line-through; color: #999;">${shidaiTime}</span> <span style="color: #e74c3c; font-weight: bold;">${shidaiActualTime}</span>`;
+    }
+
     row.innerHTML = `
-        <td>${numataTime}</td>
-        <td>${shidaiTime}</td>
+        <td>${numataDisplay}</td>
+        <td>${shidaiDisplay}</td>
         <td>${routeNumber}</td>
         <td class="content">
             <span>${destination}</span>
