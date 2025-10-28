@@ -41,7 +41,7 @@ function displayBusSchedule(scheduleData) {
         let shidaiActualTime = null;
         let shidaiDelay = 0;
         let destination = '';
-        let currentLocation = '情報なし';
+        let currentLocation = tripInfo.route_long_name || '情報なし';
         let delayInfo = '';
 
         for (const stop of stops) {
@@ -55,7 +55,6 @@ function displayBusSchedule(scheduleData) {
                         numataActualTime = formatTime(stop.actual_departure.time);
                     }
                     delayInfo = formatDelay(numataDelay);
-                    currentLocation = `${stop.stop_name} を通過`;
                 }
             }
             // 市立大学前 (22030 1 または 22030 2)
@@ -69,7 +68,6 @@ function displayBusSchedule(scheduleData) {
                     if (!delayInfo) {
                         delayInfo = formatDelay(shidaiDelay);
                     }
-                    currentLocation = `${stop.stop_name} を通過`;
                 }
             }
 
