@@ -1,7 +1,7 @@
 // APIからバス時刻表データを取得して表示
 async function fetchBusSchedule() {
   try {
-    const response = await fetch("./api");
+    const response = await fetch("/api/");
 
     if (!response.ok) {
       throw new Error(`HTTPエラー: ${response.status}`);
