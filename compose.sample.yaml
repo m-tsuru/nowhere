@@ -1,0 +1,19 @@
+services:
+  tasukuya:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nowhere-sample
+    restart: unless-stopped
+
+    # 環境変数ファイルを読み込み
+    env_file:
+      - .env
+
+    # データベースファイルを永続化
+    volumes:
+      - ./nowhere.db:/app/nowhere.db
+      - ./view:/app/view
+
+    ports:
+      - 8000:8000
