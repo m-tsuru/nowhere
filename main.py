@@ -19,8 +19,15 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 
 app = FastAPI()
+
+app.add_middleware(
+    TrustedHostMiddleware,
+    allowed_hosts=["nowhere-ondemand.sasakulab.com", "localhost"]
+)
 
 dotenv.load_dotenv()
 GTFS_DYNAMIC_URL = os.getenv("GTFS_DYNAMIC_URL")
