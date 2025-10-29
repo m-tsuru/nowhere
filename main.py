@@ -21,6 +21,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 
 app = FastAPI()
 
@@ -28,6 +29,22 @@ app.add_middleware(
     TrustedHostMiddleware,
     allowed_hosts=["nowhere-ondemand.sasakulab.com", "localhost"]
 )
+
+class ProxyHeadersMiddleware:
+    async def __call__(self, request, call_next):
+        # Cloudflareからのヘッダーを信頼
+        forwarded_proto = request.headers.get("X-Forwarded-Proto")
+        if forwarded_proto:
+            request.scope["scheme"] = forwarded_proto
+
+        cf_visitor = request.headers.get("CF-Visitor")
+        if cf_visitor and '"scheme":"https"' in cf_visitor:
+            request.scope["scheme"] = "https"
+
+        response = await call_next(request)
+        return response
+
+app.add_middleware(ProxyHeadersMiddleware)
 
 dotenv.load_dotenv()
 GTFS_DYNAMIC_URL = os.getenv("GTFS_DYNAMIC_URL")
