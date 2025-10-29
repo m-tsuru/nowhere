@@ -1,7 +1,7 @@
 // APIからバス時刻表データを取得して表示
 async function fetchBusSchedule() {
   try {
-    const response = await fetch("/api");
+    const response = await fetch("./api");
 
     if (!response.ok) {
       throw new Error(`HTTPエラー: ${response.status}`);
@@ -292,7 +292,7 @@ function startAutoRefresh(intervalSeconds = 30) {
 // status-text.json からテキストを取得して更新
 async function reloadTextile() {
   try {
-    const response = await fetch("/view/status-text.json");
+    const response = await fetch("./view/status-text.json");
 
     if (!response.ok) {
       throw new Error(`HTTPエラー: ${response.status}`);
