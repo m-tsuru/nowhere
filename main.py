@@ -8,6 +8,11 @@ from lib.dynamic import (
 )
 from lib.static import get_bus_schedule_flexible
 from lib.merger import merge_gtfs_realtime
+from lib.database import (
+    initialize_database,
+    download_static_files,
+    insert_static,
+)
 
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
@@ -19,6 +24,15 @@ app = FastAPI()
 
 dotenv.load_dotenv()
 GTFS_DYNAMIC_URL = os.getenv("GTFS_DYNAMIC_URL")
+GTFS_STATIC_URL = os.getenv("GTFS_STATIC_URL")
+try:
+    print("Downloading Static Information and Initializing Database...")
+    initialize_database()
+    download_static_files(GTFS_STATIC_URL, "static.zip")
+    insert_static()
+except Exception as e:
+    print(f"Error during initialization: {e}")
+    os.exit(1)
 
 
 @app.get("/api/")

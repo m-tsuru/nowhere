@@ -133,7 +133,7 @@ function displayBusSchedule(scheduleData) {
   });
 
   // 上位3件のみ表示
-  const topThree = tripRows.slice(0, 3);
+  const topThree = tripRows.slice(0, 5);
 
   for (const rowData of topThree) {
     const row = createTableRow(
