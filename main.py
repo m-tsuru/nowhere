@@ -1,5 +1,6 @@
 import dotenv
 import os
+import sys
 import datetime
 
 from lib.dynamic import (
@@ -14,7 +15,7 @@ from lib.database import (
     insert_static,
 )
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, status
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 from sqlalchemy import create_engine
@@ -25,14 +26,19 @@ app = FastAPI()
 dotenv.load_dotenv()
 GTFS_DYNAMIC_URL = os.getenv("GTFS_DYNAMIC_URL")
 GTFS_STATIC_URL = os.getenv("GTFS_STATIC_URL")
+
+global is_ready
+is_ready = False
+
 try:
     print("Downloading Static Information and Initializing Database...")
     initialize_database()
     download_static_files(GTFS_STATIC_URL, "static.zip")
     insert_static()
+    is_ready = True
 except Exception as e:
     print(f"Error during initialization: {e}")
-    os.exit(1)
+    sys.exit(1)
 
 
 @app.get("/api/")
@@ -79,6 +85,23 @@ async def api():
             "message": str(e),
             "result": {},
         }
+
+
+@app.get("/api/health", status_code=status.HTTP_200_OK)
+async def health_check():
+    """
+    Readiness Probe/Liveness Probe 用のヘルスチェックエンドポイント。
+    is_ready が False の場合は HTTP 503 を返す。
+    """
+    if not is_ready:
+        # HTTP 503 Service Unavailable を返すことで、
+        # ホスト（ロードバランサーやK8sなど）に「まだ準備ができていない」と伝える
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Service is starting up. Please wait.",
+        )
+    # is_ready が True の場合は HTTP 200 OK を返す
+    return {"status": "ok", "message": "Service is ready to handle requests."}
 
 
 @app.get("/")
